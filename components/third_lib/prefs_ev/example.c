@@ -2,7 +2,7 @@
 
 void example1(void)
 {
-    #define MAX_EV_COUNT   50
+    #define MAX_EV_COUNT   10
 
     prefs_ev_t hprefs_ev = {
         .hprefs.part_name = "event",
@@ -22,17 +22,35 @@ void example1(void)
         buff[i] = i+1;
         prefs_ev_write_u64(&hprefs_ev, buff[i]);
     }
+
+    for(int32_t i=0; i<MAX_EV_COUNT/2; i++)
+    {
+        buff[i] = i+1;
+        prefs_ev_write_u64(&hprefs_ev, buff[i]);
+    }
+
+    for(int32_t i=0; i<MAX_EV_COUNT; i++)
+    {
+        buff[i] = i+1;
+        prefs_ev_write_u64(&hprefs_ev, buff[i]);
+    }
+
+    for(int32_t i=0; i<MAX_EV_COUNT/2; i++)
+    {
+        buff[i] = i+1;
+        prefs_ev_write_u64(&hprefs_ev, buff[i]);
+    }
     
     delay_ms(100);
     
-    uint64_t v[MAX_EV_COUNT] = {};
-    uint32_t l=0;
-    prefs_ev_peek_u64_muti(&hprefs_ev, 0, MAX_EV_COUNT, v, &l);
-    printf("length: %d\n", l);
-    for(int i=0; i<l; i++)
-    {
-        printf("value [%d]: %lld\n", i, v[i]);
-    }
+    // uint64_t v[MAX_EV_COUNT] = {};
+    // uint32_t l=0;
+    // prefs_ev_peek_u64_muti(&hprefs_ev, 0, MAX_EV_COUNT, v, &l);
+    // printf("length: %d\n", l);
+    // for(int i=0; i<l; i++)
+    // {
+    //     printf("value [%d]: %lld\n", i, v[i]);
+    // }
     printf("---------###-------------\n");
 
     for(int32_t i=0; i<MAX_EV_COUNT; i++)
@@ -45,6 +63,15 @@ void example1(void)
     printf("---------###-------------\n");
 
     delay_ms(100);
+
+    for(int32_t i=0; i<MAX_EV_COUNT/2; i++)
+    {
+        buff[i] = i+1;
+        prefs_ev_write_u64(&hprefs_ev, buff[i]);
+    }
+
+    printf("---------###-------------\n");
+
 
     for(int32_t i=0; i<MAX_EV_COUNT; i++)
     {
@@ -59,6 +86,7 @@ void example1(void)
             printf("peek failed!, [%i]\n", i);
         }
     }
+    
     printf("---------###-------------\n");
 }
 

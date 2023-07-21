@@ -24,8 +24,6 @@ bool prefs_ev_read_idx(prefs_ev_t* hprefs_ev)
     {
         hprefs_ev->idx.read = 0;
         hprefs_ev->idx.write = 0;
-        hprefs_ev->idx.over_rd = 0;
-        hprefs_ev->idx.over_wr = 0;
     }
     return r;
 }
@@ -47,16 +45,18 @@ bool prefs_ev_config_idx(prefs_ev_t* hprefs_ev, prefs_idx_t idx)
 bool prefs_ev_idx_read_inc(prefs_ev_t* hprefs_ev)
 {
     mutex_lock(hprefs_ev->hmutex);
-    hprefs_ev->idx.read++;
-    if(hprefs_ev->idx.read >= hprefs_ev->max_count)
+    if( hprefs_ev->idx.write < hprefs_ev->idx.read) 
     {
-        hprefs_ev->idx.read = 0;
-        hprefs_ev->idx.over_rd++;
+        hprefs_ev->idx.read++;
+        hprefs_ev->idx.read%=hprefs_ev->max_count;
     }
-    if( (hprefs_ev->idx.over_rd >= hprefs_ev->idx.over_wr) && \
-        (hprefs_ev->idx.read >= hprefs_ev->idx.write)) // empty
+    else 
     {
-        hprefs_ev->idx.read = hprefs_ev->idx.write;
+        hprefs_ev->idx.read++;
+        if(hprefs_ev->idx.read >= hprefs_ev->idx.write)
+        {
+            hprefs_ev->idx.read = hprefs_ev->idx.write;
+        }
     }
     mutex_unlock(hprefs_ev->hmutex);
 
@@ -66,11 +66,24 @@ bool prefs_ev_idx_read_inc(prefs_ev_t* hprefs_ev)
 bool prefs_ev_idx_write_inc(prefs_ev_t* hprefs_ev)
 {
     mutex_lock(hprefs_ev->hmutex);
-    hprefs_ev->idx.write++;
-    if(hprefs_ev->idx.write >= hprefs_ev->max_count)
+    if( hprefs_ev->idx.write < hprefs_ev->idx.read )
     {
-        hprefs_ev->idx.write = 0;
-        hprefs_ev->idx.over_wr++;
+        if((hprefs_ev->idx.write+1) == hprefs_ev->idx.read) // full
+        {
+            hprefs_ev->idx.read++;
+            hprefs_ev->idx.read%=hprefs_ev->max_count;
+        }
+        hprefs_ev->idx.write++;
+        hprefs_ev->idx.write%=hprefs_ev->max_count;
+    }
+    else 
+    {
+        hprefs_ev->idx.write++;
+        if(hprefs_ev->idx.write >= hprefs_ev->max_count)
+        {
+            hprefs_ev->idx.write = 0;
+            hprefs_ev->idx.read++;
+        }
     }
     mutex_unlock(hprefs_ev->hmutex);
 
@@ -79,8 +92,7 @@ bool prefs_ev_idx_write_inc(prefs_ev_t* hprefs_ev)
 
 bool prefs_ev_is_empty(prefs_ev_t* hprefs_ev)
 {
-    if( (hprefs_ev->idx.over_rd >= hprefs_ev->idx.over_wr) && \
-        (hprefs_ev->idx.read >= hprefs_ev->idx.write))  // empty
+    if(hprefs_ev->idx.read == hprefs_ev->idx.write)  // empty
     {
         return true;
     }
@@ -89,6 +101,7 @@ bool prefs_ev_is_empty(prefs_ev_t* hprefs_ev)
 
 bool prefs_ev_peek_u64(prefs_ev_t* hprefs_ev, uint64_t* value)
 {
+    ESP_LOGI("prefs_ev_peek_u64", "read: %d, write: %d", hprefs_ev->idx.read, hprefs_ev->idx.write);
     if(prefs_ev_is_empty(hprefs_ev))
     {
         return false;
@@ -104,6 +117,7 @@ bool prefs_ev_peek_u64(prefs_ev_t* hprefs_ev, uint64_t* value)
 
 bool prefs_ev_peek_u64_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, uint64_t value[], uint32_t* length)
 {
+    ESP_LOGI("prefs_ev_peek_u64_muti", "read: %d, write: %d", hprefs_ev->idx.read, hprefs_ev->idx.write);
     if(prefs_ev_is_empty(hprefs_ev))
     {
         return false;
@@ -132,6 +146,7 @@ bool prefs_ev_peek_u64_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, u
 
 bool prefs_ev_read_u64(prefs_ev_t* hprefs_ev, uint64_t* value)
 {
+    ESP_LOGI("prefs_ev_read_u64", "read: %d, write: %d", hprefs_ev->idx.read, hprefs_ev->idx.write);
     if(prefs_ev_is_empty(hprefs_ev))
     {
         return false;
@@ -155,6 +170,7 @@ bool prefs_ev_read_u64(prefs_ev_t* hprefs_ev, uint64_t* value)
 
 bool prefs_ev_write_u64(prefs_ev_t* hprefs_ev, uint64_t value)
 {
+    ESP_LOGI("prefs_ev_write_u64", "read: %d, write: %d", hprefs_ev->idx.read, hprefs_ev->idx.write);
     char key[16] = {0};
     utoa(hprefs_ev->idx.write, key, 16);
     const char* TAG = "prefs_ev_write_u64";
@@ -251,12 +267,22 @@ bool prefs_ev_write_block(prefs_ev_t* hprefs_ev, void* buff, uint32_t size)
 
 bool prefs_ev_move(prefs_ev_t* hprefs_ev)
 {
+    if(prefs_ev_is_empty(hprefs_ev))
+    {
+        return true;
+    }
+
     prefs_ev_idx_read_inc(hprefs_ev);
     return true;
 }
 
 bool prefs_ev_remove(prefs_ev_t* hprefs_ev)
 {
+    if(prefs_ev_is_empty(hprefs_ev))
+    {
+        return true;
+    }
+
     char key[16] = {0};
     utoa(hprefs_ev->idx.read, key, 16);
 

@@ -26,8 +26,6 @@ typedef struct
 {
     uint32_t read;
     uint32_t write;
-    uint32_t over_rd;
-    uint32_t over_wr;
 } prefs_idx_t;
 
 typedef struct 

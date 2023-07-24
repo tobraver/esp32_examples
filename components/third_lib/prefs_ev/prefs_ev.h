@@ -40,12 +40,12 @@ typedef struct
 bool prefs_ev_init(prefs_ev_t* hprefs_ev); /* prefs event init. */
 
 bool prefs_ev_peek_u64(prefs_ev_t* hprefs_ev, uint64_t* value); /* prefs event peek. */
-bool prefs_ev_peek_u64_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, uint64_t value[], uint32_t* length);
+bool prefs_ev_peek_u64_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, uint64_t value[], uint32_t* size);
 bool prefs_ev_read_u64(prefs_ev_t* hprefs_ev, uint64_t* value); /* prefs event read = peek + remove. */
 bool prefs_ev_write_u64(prefs_ev_t* hprefs_ev, uint64_t value); /* prefs event write. */
 
 bool prefs_ev_peek_block(prefs_ev_t* hprefs_ev, void* buff, uint32_t size); /* prefs event peek. */
-bool prefs_ev_peek_block_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, void* value, uint32_t size, uint32_t* length);
+bool prefs_ev_peek_block_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, void* value, uint32_t width, uint32_t* size);
 bool prefs_ev_read_block(prefs_ev_t* hprefs_ev, void* buff, uint32_t size); /* prefs event read = peek + remove. */
 bool prefs_ev_write_block(prefs_ev_t* hprefs_ev, void* buff, uint32_t size); /* prefs event write. */
 

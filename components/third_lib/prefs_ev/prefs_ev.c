@@ -115,7 +115,7 @@ bool prefs_ev_peek_u64(prefs_ev_t* hprefs_ev, uint64_t* value)
     return prefs_read_u64(hprefs_ev->hprefs, key, value);
 }
 
-bool prefs_ev_peek_u64_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, uint64_t value[], uint32_t* length)
+bool prefs_ev_peek_u64_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, uint64_t value[], uint32_t* size)
 {
     ESP_LOGI("prefs_ev_peek_u64_muti", "read: %d, write: %d", hprefs_ev->idx.read, hprefs_ev->idx.write);
     if(prefs_ev_is_empty(hprefs_ev))
@@ -136,12 +136,12 @@ bool prefs_ev_peek_u64_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, u
         {
             break;
         }
-        *length = i+1;
+        *size = i+1;
         prefs_ev_move(hprefs_ev);
     }
 
     prefs_ev_config_idx(hprefs_ev, conf_idx); // recover
-    return *length ? true : false;
+    return *size ? true : false;
 }
 
 bool prefs_ev_read_u64(prefs_ev_t* hprefs_ev, uint64_t* value)
@@ -199,7 +199,7 @@ bool prefs_ev_peek_block(prefs_ev_t* hprefs_ev, void* buff, uint32_t size)
     return prefs_read_block(hprefs_ev->hprefs, key, buff, size);
 }
 
-bool prefs_ev_peek_block_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, void* value, uint32_t size, uint32_t* length)
+bool prefs_ev_peek_block_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt, void* value, uint32_t width, uint32_t* size)
 {
     if(prefs_ev_is_empty(hprefs_ev))
     {
@@ -216,17 +216,17 @@ bool prefs_ev_peek_block_muti(prefs_ev_t* hprefs_ev, uint32_t idx, uint32_t cnt,
 
     for(uint32_t i=0; i<cnt; i++)
     {
-        if(prefs_ev_peek_block(hprefs_ev, pvalue, size) == false)
+        if(prefs_ev_peek_block(hprefs_ev, pvalue, width) == false)
         {
             break;
         }
-        *length = i+1;
-        pvalue += size;
+        *size = i+1;
+        pvalue += width;
         prefs_ev_move(hprefs_ev);
     }
 
     prefs_ev_config_idx(hprefs_ev, conf_idx); // recover
-    return *length ? true : false;
+    return *size ? true : false;
 }
 
 bool prefs_ev_read_block(prefs_ev_t* hprefs_ev, void* buff, uint32_t size)

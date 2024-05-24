@@ -14,7 +14,7 @@
 * 路由器管理界面
 * 状态指示灯
 
-![ESP32-S2_USB_4g_moudle](./_static/esp32s2_cdc_4g_moudle.png)
+![ESP32-S2_USB_4g_moudle](./img/esp32s2_cdc_4g_moudle.png)
 
 * [Demo 视频](https://b23.tv/8flUAS)
 
@@ -101,7 +101,7 @@
 
 4. 选择 Cat.1 模组型号 `Menuconfig → Component config → ESP-MODEM → Choose Modem Board`，如果所选型号未在该列表，请参照 `其它 4G Cat.1 模组适配方法`，自行配置模组端点信息进行适配
 
-    ![choose_modem](./_static/choose_modem.png)
+    ![choose_modem](./img/choose_modem.png)
 
 5. 编译、下载、查看输出
 
@@ -255,3 +255,15 @@ I (15954) modem_wifi: NAT is enabled
 
 > **4G Cat.1 理论峰值下载速率 10 Mbps，峰值上传速率 5 Mbps**
 > 实际通信速率受运营商网络、测试软件、Wi-Fi 干扰情况、终端连接数影响，以实际使用为准
+
+
+# PPP拨号上网原理
+
+PPP（点对点协议）的使用方法如下图所示，UART 端口或 USB 端口均可用于 PPP 连接。模块为应
+用程序提供 PPP 服务器，应用程序端为模块提供 PPP 客户端。同时，应用程序端必须提供 TCP/IP、
+HTTP(S)等协议。当建立 PPP 连接时，来自应用程序端的 IP 报文数据流将通过模块传输到网络。
+
+大多数标准操作系统（例如 Windows 系统、Unix/Linux 系统）都有 PPP 协议栈。针对无可用应用程
+序进行 PPP 连接的操作系统，需先开发适用的应用软件。
+
+![ppp原理图示](./img/ppp.png)

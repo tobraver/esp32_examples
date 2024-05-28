@@ -1,0 +1,6 @@
+version: "0.2.1"
+targets:
+  - esp32s2
+  - esp32s3
+dependencies:
+  idf: ">=4.4.1"

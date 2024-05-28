@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "regex": "c",
+        "condition_variable": "c",
+        "future": "c",
+        "led_indicator_blink_default.h": "c",
+        "usbh_modem_board.h": "c",
+        "esp_system.h": "c",
+        "esp_log.h": "c",
+        "esp_err.h": "c",
+        "esp_event.h": "c",
+        "esp_netif.h": "c"
+    }
+}

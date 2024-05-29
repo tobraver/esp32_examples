@@ -11,6 +11,14 @@
 const char* TAG = "iot_modem";
 static int s_iot_moden_init = 0;
 
+/**
+ * @brief Auto enter ppp mode
+ */
+#define CONFIG_ENTER_PPP_DURING_INIT    1
+
+/**
+ * @brief IOT Modem event handler
+ */
 static void iot_modem_event(void *arg, esp_event_base_t event_base,
                            int32_t event_id, void *event_data)
 {
@@ -41,10 +49,6 @@ static void iot_modem_event(void *arg, esp_event_base_t event_base,
 
 /**
  * @brief iot modem init
- * 
- * @return int 
- *  @retval 0 success
- *  @retval -1 failed
  */
 int iot_modem_init(void)
 {
@@ -65,13 +69,14 @@ int iot_modem_init(void)
     /* Initialize modem board. Dial-up internet */
     modem_config_t modem_config = MODEM_DEFAULT_CONFIG();
     /* Modem init flag, used to control init process */
-#ifndef CONFIG_EXAMPLE_ENTER_PPP_DURING_INIT
+#ifndef CONFIG_ENTER_PPP_DURING_INIT
     /* if Not enter ppp, modem will enter command mode after init */
     modem_config.flags |= MODEM_FLAGS_INIT_NOT_ENTER_PPP;
     /* if Not waiting for modem ready, just return after modem init */
     modem_config.flags |= MODEM_FLAGS_INIT_NOT_BLOCK;
 #endif
     modem_config.handler = iot_modem_event;
+    // If auto enter ppp and block until ppp got ip
     esp_err_t err = modem_board_init(&modem_config);
     
     s_iot_moden_init = 1;
@@ -80,6 +85,9 @@ int iot_modem_init(void)
     } else {
         ESP_LOGE(TAG, "iot modem int failed, %s", esp_err_to_name(err));
     }
+
+    iot_modem_info();
+
     return (err == ESP_OK) ? 0 : -1;
 }
 

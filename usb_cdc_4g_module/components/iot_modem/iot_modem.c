@@ -4,9 +4,6 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_err.h"
-#include "esp_event.h"
-#include "esp_netif.h"
-#include "esp_netif_ppp.h"
 
 const char* TAG = "iot_modem";
 static int s_iot_moden_init = 0;
